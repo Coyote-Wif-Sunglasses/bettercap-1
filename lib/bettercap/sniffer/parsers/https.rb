@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -19,24 +19,18 @@ class Https < Base
 
   def on_packet( pkt )
     begin
-      if pkt.tcp_dst == 443
-        # the DNS resolution could take a while and block other parsers.
+      if pkt.respond_to?(:tcp_dst) and pkt.tcp_dst == 443
         Thread.new do
-          begin
-              hostname = Resolv.getname pkt.ip_daddr
-          rescue
-              hostname = pkt.ip_daddr.to_s
-          end
-
+          hostname = BetterCap::Network.ip2name( pkt.ip_daddr )
           if @@prev.nil? or @@prev != hostname
             StreamLogger.log_raw( pkt, 'HTTPS', "https://#{hostname}/" )
             @@prev = hostname
           end
         end
       end
-    rescue
-    end
+    rescue; end
   end
+
 end
 end
 end

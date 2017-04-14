@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -100,6 +100,15 @@ class Response
     self << "\n"
     @code = response.code
     @body = response.body || ''
+  end
+
+  # Convert this response object to a 302 redirect to +url+.
+  def redirect!(url)
+    @code   = '302'
+    @status = 'Moved'
+    @body   = nil
+    @headers['Location']   = url
+    @headers['Connection'] = 'close'
   end
 
   # Parse a single response +line+.

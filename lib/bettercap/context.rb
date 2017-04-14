@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -40,8 +40,8 @@ class Context
   attr_reader   :timeout
   # Instance of BetterCap::PacketQueue.
   attr_reader   :packets
-  # Instance of BetterCap::Memory.
-  attr_reader   :memory
+  # Precomputed list of possible addresses on the current network.
+  attr_reader   :endpoints
 
   @@instance = nil
 
@@ -65,7 +65,6 @@ class Context
     @options      = Options.new iface
     @discovery    = Discovery::Thread.new self
     @firewall     = Firewalls::Base.get
-    @memory       = Memory.new
     @iface        = nil
     @original_mac = nil
     @gateway      = nil
@@ -76,6 +75,7 @@ class Context
     @proxies      = []
     @redirections = []
     @packets      = nil
+    @endpoints    = []
   end
 
   # Update the Context state parsing network related informations.
@@ -95,7 +95,7 @@ class Context
 
       Logger.info "Changing interface MAC address to #{@options.core.use_mac}"
 
-      Shell.ifconfig( "#{@options.core.iface} ether #{@options.core.use_mac}")
+      Shell.change_mac( @options.core.iface, @options.core.use_mac )
     end
 
     cfg = PacketFu::Utils.ifconfig @options.core.iface
@@ -105,6 +105,8 @@ class Context
     @gateway = Network::Target.new gw
     @targets = @options.core.targets unless @options.core.targets.nil?
     @iface   = Network::Target.new( cfg[:ip_saddr], cfg[:eth_saddr], cfg[:ip4_obj], cfg[:iface] )
+    raise BetterCap::Error, "Could not determine MAC address of '#{@options.core.iface}', make sure this interface "\
+                            'is active and connected.' unless Network::Validator::is_mac?(@iface.mac)
 
     Logger.info "[#{@iface.name.green}] #{@iface.to_s(false)}"
 
@@ -117,6 +119,21 @@ class Context
     @packets = Network::PacketQueue.new( @iface.name, @options.core.packet_throttle, 4 )
     # Spoofers need the context network data to be initialized.
     @spoofer = @options.spoof.parse_spoofers
+
+    if @options.core.discovery?
+      tstart = Time.now
+      Logger.info "[#{'DISCOVERY'.green}] Precomputing list of possible endpoints, this could take a while depending on your subnet ..."
+      net = ip = @iface.network
+      # loop each ip in our subnet and push it to the queue
+      while net.include?ip
+        if ip != @gateway.ip and ip != @iface.ip
+          @endpoints << ip
+        end
+        ip = ip.succ
+      end
+      tend = Time.now
+      Logger.info "[#{'DISCOVERY'.green}] Done in #{(tend - tstart) * 1000.0} ms"
+    end
   end
 
   # Find a target given its +ip+ and +mac+ addresses inside the #targets

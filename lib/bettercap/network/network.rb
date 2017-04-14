@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -83,6 +83,30 @@ class << self
       hw = ArpReader.find_address( ip )
     end
     hw
+  end
+
+  def ip2name( address )
+    begin
+      names = Resolv.getnames(address)
+      hostname = names[0]
+      names.each do |name|
+        unless name.nil? or name.end_with?('.') or name.strip.empty?
+          hostname = name
+        end
+      end
+      unless hostname.empty?
+        return hostname
+      end
+    rescue; end
+
+    begin
+      hostname = Resolv.getname(address)
+      unless hostname.empty?
+        return hostname
+      end
+    rescue; end
+    
+    address.to_s
   end
 
   private

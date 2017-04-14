@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -70,7 +70,7 @@ module Logger
 
     # Log a +message+ as it is.
     def raw(message)
-      @@queue.push( formatted_message( message, nil ) )
+      @@queue.push( formatted_message( message, nil ) ) unless @@silent
     end
 
     # Wait for the messages queue to be empty.
