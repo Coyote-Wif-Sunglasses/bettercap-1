@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -44,7 +44,6 @@ class PacketQueue
   # Push a packet to the queue.
   def push(packet)
     @queue.push(packet)
-    @ctx.memory.optimize! if ( @queue.size == 1 )
   end
 
   # Wait for the packet queue to be empty.

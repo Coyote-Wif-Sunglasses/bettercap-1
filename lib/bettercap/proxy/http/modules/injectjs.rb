@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -67,13 +67,13 @@ class InjectJS < BetterCap::Proxy::HTTP::Module
       BetterCap::Logger.info "[#{'INJECTJS'.green}] Injecting javascript #{@@jsdata.nil?? "URL" : "file"} into #{request.to_url}"
       # inject URL
       if @@jsdata.nil?
-	 replacement = "<script src=\"#{@@jsurl}\" type=\"text/javascript\"></script></head>"
-        response.body.sub!( '</head>' ) {replacement} 
+	      replacement = "<script src=\"#{@@jsurl}\" type=\"text/javascript\"></script></head>"
       # inject data
       else
-	 replacement = "#{@@jsdata}<p></p></head>" 
-        response.body.sub!( '</head>') {replacement} 
+	      replacement = "#{@@jsdata}</head>"
       end
+
+      response.body.sub!( /<\/head>/i ) { replacement }
     end
   end
 end

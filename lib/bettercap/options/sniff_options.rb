@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -72,6 +72,11 @@ class SniffOptions
     opts.on( '-P', '--parsers PARSERS', "Comma separated list of packet parsers to enable, '*' for all ( NOTE: Will set -X to true ), available: #{Parsers::Base.available.map { |x| x.yellow }.join(', ')} - default: #{'*'.yellow}" ) do |v|
       @enabled = true
       @parsers = Parsers::Base.from_cmdline(v)
+    end
+
+    opts.on( '--disable-parsers PARSERS', "Comma separated list of packet parsers to disable ( NOTE: Will set -X to true )" ) do |v|
+      @enabled = true
+      @parsers = Parsers::Base.from_exclusion_list(v)
     end
 
     opts.on( '--custom-parser EXPRESSION', 'Use a custom regular expression in order to capture and show sniffed data ( NOTE: Will set -X to true ).' ) do |v|

@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -18,6 +18,7 @@ module Shell
     # Execute +command+ and return its output.
     # Raise +BetterCap::Error+ if the return code is not 0.
     def execute(command)
+      Logger.debug command
       r = ''
       10.times do
         begin
@@ -54,6 +55,17 @@ module Shell
     # Get the +iface+ network interface configuration ( using ifconfig ).
     def ifconfig(iface = '')
       self.execute( "LANG=en && ifconfig #{iface}" )
+    end
+
+    # Change the +iface+ mac address to +mac+ using ifconfig.
+    def change_mac(iface, mac)
+      if RUBY_PLATFORM =~ /.+bsd/ or RUBY_PLATFORM =~ /darwin/
+        self.ifconfig( "#{iface} ether #{mac}")
+      elsif RUBY_PLATFORM =~ /linux/
+        self.ifconfig( "#{iface} hw ether #{mac}")
+      else
+       raise BetterCap::Error, 'Unsupported operating system'
+      end
     end
 
     # Get the +iface+ network interface configuration ( using iproute2 ).

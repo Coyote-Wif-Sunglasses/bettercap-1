@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -119,7 +119,6 @@ class Thread
 
       prev = @ctx.targets
 
-      @ctx.memory.optimize!
       sleep(1) if @ctx.options.core.discovery?
     end
   end

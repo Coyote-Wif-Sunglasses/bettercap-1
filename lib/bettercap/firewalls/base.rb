@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -26,7 +26,9 @@ class Base
         @@instance = Firewalls::BSD.new
       elsif RUBY_PLATFORM =~ /linux/
         @@instance = Firewalls::Linux.new
-      else
+      end
+
+      if @@instance.nil? or not @@instance.supported?
         raise BetterCap::Error, 'Unsupported operating system'
       end
 
@@ -43,6 +45,11 @@ class Base
   # Raise NotImplementedError
   def initialize
     @frwd_initial_state = forwarding_enabled?
+  end
+
+  # OS specific checks.
+  def supported?
+    true
   end
 
   # If +enabled+ is true will enable packet forwarding, otherwise it will

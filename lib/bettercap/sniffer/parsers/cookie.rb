@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -13,10 +13,48 @@ This project is released under the GPL 3 license.
 
 module BetterCap
 module Parsers
+class CookieJar
+  def initialize
+    @store = {}
+  end
+
+  def known_cookie?( from, to, kvals )
+    with_session( from, to ) do |session|
+      session.each do |kv|
+        if kv == kvals
+          return true
+        end
+      end
+    end
+    false
+  end
+
+  def store( from, to, kvals )
+    with_session( from, to ) do |session|
+      session << kvals
+    end
+  end
+
+  private
+
+  def with_session( from, to )
+    root_key = "#{from}->#{to}"
+    # do we know this session?
+    unless @store.key?(root_key)
+      @store[root_key] = []
+    end
+    yield @store[root_key]
+  end
+end
+
 # HTTP cookies parser.
 class Cookie < Base
   # Cookies to ignore.
   FILTER = [ '__cfduid', '_ga', '_gat' ].freeze
+
+  def initialize
+    @jar = CookieJar.new
+  end
 
   def on_packet( pkt )
     hostname = nil
@@ -37,7 +75,10 @@ class Cookie < Base
     end
 
     unless hostname.nil? or cookies.empty?
-      StreamLogger.log_raw( pkt, "COOKIE", "[#{hostname.yellow}] #{cookies.map{|k,v| "#{k.green}=#{v.yellow}"}.join('; ')}" )
+      unless @jar.known_cookie?( pkt.ip_saddr, hostname, cookies )
+        StreamLogger.log_raw( pkt, "COOKIE", "[#{hostname.yellow}] #{cookies.map{|k,v| "#{k.green}=#{v.yellow}"}.join('; ')}" )
+        @jar.store( pkt.ip_saddr, hostname, cookies )
+      end
     end
   end
 end

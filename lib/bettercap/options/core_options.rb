@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -105,10 +105,18 @@ class CoreOptions
     opts.on( '--check-updates', 'Will check if any update is available and then exit.' ) do
       @check_updates = true
     end
+    
+    opts.on( '-R', '--rainbows', 'Rainbow output, because that\'s a really helpful thing to have (requires the "lolize" gem to be installed).' ) do
+      begin
+        require 'lolize/auto'
+      rescue LoadError
+        raise BetterCap::Error, "GEM lolize not found, please install it in order to use this option"  
+      end
+    end
 
     opts.on( '-h', '--help', 'Display the available options.') do
       puts opts
-      puts "\nFor examples & docs please visit " + "http://bettercap.org/docs/".bold
+      puts "\nFor examples & docs please visit " + "https://bettercap.org/docs/".bold
       exit
     end
 

@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -31,12 +31,14 @@ class Sniffer
 
       setup( ctx )
 
+      tmin = System.cpu_count
+      tmax = tmin * 4
+
       start     = Time.now
       skipped   = 0
       processed = 0
-
-      self.stream.each do |raw_packet|
-        break unless @@ctx.running
+      lock      = Mutex.new
+      pool      = BetterCap::Proxy::ThreadPool.new( tmin, tmax ) do |raw_packet|
         begin
           parsed = PacketFu::Packet.parse(raw_packet)
         rescue Exception => e
@@ -47,9 +49,22 @@ class Sniffer
           skipped += 1
         else
           processed += 1
-          append_packet raw_packet
           parse_packet parsed
+          unless @@pcap.nil?
+            lock.synchronize {
+              append_packet raw_packet
+            }
+          end
         end
+      end
+
+      self.stream.each do |raw_packet|
+        break unless @@ctx.running
+        pool << raw_packet
+      end
+
+      while pool.backlog != 0
+        sleep(0.1)
       end
 
       stop = Time.now
@@ -111,7 +126,7 @@ class Sniffer
       @@pcap.array_to_file(
           filename: @@ctx.options.sniff.output,
           array: [p],
-          append: true ) unless @@pcap.nil?
+          append: true )
     rescue Exception => e
       Logger.exception e
     end

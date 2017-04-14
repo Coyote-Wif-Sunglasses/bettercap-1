@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -18,6 +18,7 @@ class Ftp < Base
   def initialize
     @filters = [ /(USER|PASS)\s+.+/ ]
     @name = 'FTP'
+    @port = 21
   end
 end
 end

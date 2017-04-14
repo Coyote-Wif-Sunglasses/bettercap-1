@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -97,7 +97,7 @@ class Target
 
   # Return a compact string representation of this object.
   def to_s_compact
-    return "#{@name}/#{@ip}" if @name
+    return "#{@name.light_blue}/#{@ip}" if @name
     @ip
   end
 
@@ -122,21 +122,31 @@ private
 
   # Attempt to perform a NBNS name resolution for this target.
   def resolve!
-    resp, sock = nil, nil
-    begin
-      sock = UDPSocket.open
-      sock.send( NBNS_REQUEST, 0, @ip, NBNS_PORT )
-      resp = if select([sock], nil, nil, NBNS_TIMEOUT)
-        sock.recvfrom(NBNS_BUFSIZE)
+    hostname = Network.ip2name(@ip)
+    if hostname == @ip
+      resp, sock = nil, nil
+      begin
+        sock = UDPSocket.open
+        sock.send( NBNS_REQUEST, 0, @ip, NBNS_PORT )
+        resp = if select([sock], nil, nil, NBNS_TIMEOUT)
+          sock.recvfrom(NBNS_BUFSIZE)
+        end
+        if resp
+          @name = parse_nbns_response resp
+          Logger.info "Found NetBIOS name '#{@name}' for address #{@ip}"
+        end
+      rescue Exception => e
+        Logger.debug e
+      ensure
+        sock.close if sock
       end
-      if resp
-        @name = parse_nbns_response resp
-        Logger.info "Found NetBIOS name '#{@name}' for address #{@ip}"
+    else
+      if not Network::Validator.is_ip?(hostname) and hostname.include?('.')
+        @name = hostname.split('.')[0]
+      else
+        @name = hostname
       end
-    rescue Exception => e
-      Logger.debug e
-    ensure
-      sock.close if sock
+      Logger.info "Found hostname #{@name.green} for address #{@ip}"
     end
   end
 

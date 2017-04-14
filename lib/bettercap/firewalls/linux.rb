@@ -5,7 +5,7 @@ BETTERCAP
 
 Author : Simone 'evilsocket' Margaritelli
 Email  : evilsocket@gmail.com
-Blog   : http://www.evilsocket.net/
+Blog   : https://www.evilsocket.net/
 
 This project is released under the GPL 3 license.
 
@@ -20,6 +20,12 @@ class Linux < Base
   IP_FORWARD_PATH = IPV4_PATH + "/ip_forward"
   ICMP_BCAST_PATH = IPV4_PATH + "/icmp_echo_ignore_broadcasts"
   SEND_REDIRECTS_PATH = IPV4_PATH + "/conf/all/send_redirects"
+
+  def supported?
+    # Avoids stuff like this https://github.com/evilsocket/bettercap/issues/341
+    File.file?(IP_FORWARD_PATH)
+  end
+
   # If +enabled+ is true will enable packet forwarding, otherwise it will
   # disable it.
   def enable_forwarding(enabled)
