@@ -1,0 +1,45 @@
+Description: <short summary of the patch>
+ TODO: Put a short summary on the line above and replace this paragraph
+ with a longer explanation of this change. Complete the meta-information
+ with other relevant fields (see below for details). To make it easier, the
+ information below has been extracted from the changelog. Adjust it or drop
+ it.
+ .
+ bettercap (1.6.0-0parrot1) testing; urgency=medium
+ .
+   * New upstream release.
+Author: Lorenzo "Palinuro" Faletra <palinuro@parrotsec.org>
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: <vendor|upstream|other>, <url of original patch>
+Bug: <url in upstream bugtracker>
+Bug-Debian: https://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: <no|not-needed|url proving that it has been forwarded>
+Reviewed-By: <name and email of someone who approved the patch>
+Last-Update: 2017-05-08
+
+--- bettercap-1.6.0.orig/LICENSE.md
++++ bettercap-1.6.0/LICENSE.md
+@@ -3,6 +3,10 @@ GNU GENERAL PUBLIC LICENSE
+ 
+ Version 3, 29 June 2007
+ 
++
++
++
++
+ Copyright &copy; 2007 Free Software Foundation, Inc. &lt;<http://fsf.org/>&gt;
+ 
+ Everyone is permitted to copy and distribute verbatim copies of this license
+@@ -593,4 +597,4 @@ proprietary programs. If your program is
+ more useful to permit linking proprietary applications with the library. If this is
+ what you want to do, use the GNU Lesser General Public License instead of this
+ License. But first, please read
+-&lt;<http://www.gnu.org/philosophy/why-not-lgpl.html>&gt;.
+\ No newline at end of file
++&lt;<http://www.gnu.org/philosophy/why-not-lgpl.html>&gt;.
