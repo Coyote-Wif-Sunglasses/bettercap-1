@@ -25,6 +25,12 @@ class BSD < Base
     Shell.execute("sysctl -w net.inet.ip.forwarding=#{enabled ? 1 : 0}")
   end
 
+  # If +enabled+ is true will enable packet forwarding, otherwise it will
+  # disable it.
+  def enable_ipv6_forwarding(enabled)
+    Shell.execute("sysctl -w net.inet6.ip6.forwarding=#{enabled ? 1 : 0}")
+  end
+
   # If +enabled+ is true will enable packet icmp_echo_ignore_broadcasts, otherwise it will
   # disable it.
   def enable_icmp_bcast(enabled)
@@ -34,6 +40,11 @@ class BSD < Base
   # Return true if packet forwarding is currently enabled, otherwise false.
   def forwarding_enabled?
     Shell.execute('sysctl net.inet.ip.forwarding').strip.split(' ')[1] == '1'
+  end
+
+  # Return true if packet forwarding for IPv6 is currently enabled, otherwise false.
+  def ipv6_forwarding_enabled?
+    Shell.execute('sysctl net.inet6.ip6.forwarding').strip.split(' ')[1] == '1'
   end
 
   # This method is ignored on OSX.
@@ -47,7 +58,7 @@ class BSD < Base
   end
 
   # Apply the +r+ BetterCap::Firewalls::Redirection port redirection object.
-  def add_port_redirection( r )
+  def add_port_redirection( r, use_ipv6 )
     # create the pf config file
     File.open( @filename, 'a+t' ) do |f|
       f.write "#{gen_rule(r)}\n"
@@ -59,7 +70,7 @@ class BSD < Base
   end
 
   # Remove the +r+ BetterCap::Firewalls::Redirection port redirection object.
-  def del_port_redirection( r )
+  def del_port_redirection( r, use_ipv6 )
     # remove the redirection rule from the existing file
     rule = gen_rule(r)
     rules = File.readlines(@filename).collect(&:strip).reject(&:empty?)
