@@ -1,14 +1,13 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: bettercap
-Source: http://github.com/evilsocket/bettercap
+Source: https://github.com/evilsocket/bettercap
 
 Files: *
 Copyright: 2015-2016 Simone 'evilsocket' Margaritelli <evilsocket@gmail.com>
 License: GPL-3
 
 Files: debian/*
-Copyright: 2016 Sophie Brun <sophie@freexian.com>,
-           2017 Lorenzo "Palinuro" Faletra <palinuro@parrotsec.org>
+Copyright: 2016 Sophie Brun <sophie@freexian.com>
 License: GPL-3
 
 License: GPL-3

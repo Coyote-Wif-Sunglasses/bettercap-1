@@ -1,12 +1,12 @@
 Source: bettercap
 Section: net
 Priority: optional
-Maintainer: Lorenzo "Palinuro" Faletra <palinuro@parrotsec.org>
-Build-Depends: debhelper (>= 9),
+Maintainer: Sophie Brun <sophie@freexian.com>
+Build-Depends: debhelper (>= 9~),
                gem2deb,
 Standards-Version: 3.9.8
-Vcs-Git: git://dev.parrotsec.org/parrot/bettercap
-Vcs-Browser: https://dev.parrotsec.org/parrot/bettercap
+Vcs-Git: git://git.kali.org/packages/bettercap.git
+Vcs-Browser: http://git.kali.org/gitweb/?p=packages/bettercap.git;a=summary
 Homepage: https://www.bettercap.org
 XS-Ruby-Versions: all
 
@@ -16,6 +16,7 @@ XB-Ruby-Versions: ${ruby:Versions}
 Depends: ruby | ruby-interpreter,
          ruby-colorize (>= 0.7.5),
          ruby-em-proxy (>= 0.1.8),
+         ruby-eventmachine,
          ruby-net-dns (>= 0.8.0),
          ruby-network-interface (>= 0.0.1),
          ruby-packetfu (>= 1.1.10),
